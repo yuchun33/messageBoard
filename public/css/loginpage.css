@@ -1,29 +1,63 @@
-.container {
-  width: 600px;
-  height: 400px;
-  margin: 20px auto;
-}
-.container * {
+* {
+  padding: 0;
+  box-sizing: border-box;
   font-size: 20px;
 }
-.container h1 {
-  text-align: center;
-  font-size: 46px;
-  font-weight: 700;
-  color: #5da271;
+
+.bg-nav {
+  width: 100vw;
+  background: #E5E5E5;
+  border-bottom: 1px solid #E5E5E5;
+  z-index: 5;
 }
-.container form {
+.bg-nav .nav-item a {
+  color: #FF8484;
+  font-size: 34px;
+}
+.bg-nav .nav-item a:hover {
+  font-weight: 700;
+}
+
+.body {
+  margin: 0;
+  padding: 100px;
+  width: 100vw;
+  height: 100vh;
+  background: #F4CB6B;
+}
+
+.container {
+  background: #E5E5E5;
+}
+.container .title {
+  color: #FF8484;
+}
+
+.h-70 {
+  height: 70vh;
+}
+
+.w-40 {
+  width: 40vw;
+}
+
+form {
   width: 90%;
   margin: 0 auto;
 }
-.container form .btn--green {
-  width: 100%;
-  border: 0;
-  background: rgba(170, 246, 131, 0.7);
+form .btn {
+  background: #FF8484;
+  color: white;
 }
-.container form .btn--white {
-  width: 100%;
-  margin: 5px auto;
-  border: 1px solid rgba(170, 246, 131, 0.7);
+form .btn:hover {
+  background: #FFAAAA;
+}
+form .btn-border {
   background: white;
+  border: 2px solid #FF8484;
+  color: #FF8484;
+}
+form .btn-border:hover {
+  background: #FFAAAA;
+  color: white;
 }

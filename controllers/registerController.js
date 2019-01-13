@@ -20,6 +20,10 @@ module.exports = {
                 req.session.nickname = nickname
                 res.redirect('/comments')
             }) 
+            .catch(()=>{
+                const error = '此信箱已註冊過'
+                res.render('register', {err: error||''})
+            })
         }
     }
 }

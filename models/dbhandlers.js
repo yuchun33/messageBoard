@@ -30,12 +30,15 @@ module.exports = {
         .save()
     },
     //D. 拿留言
-    getComments: function(){
+    getComments: function(req){        
+        console.log(req.params.page);
         return DB.Comments.findAll({
             attribute: ['nickname', 'comment', 'createdAt'],
             //where: {parent: 0},
             order: [['createdAt', 'DESC']],
-            raw: true
+            raw: true,
+            limit: 10,
+            offset: (req.params.page-1)*10
         })
     },
     //E. 刪除留言

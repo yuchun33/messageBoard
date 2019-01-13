@@ -1,7 +1,12 @@
 <script>
+    //
+    
     //新增留言
     $('body').on("submit", ".createCommentForm", function(evt){
+        console.log('create');
+        
         evt.preventDefault()
+        
         var parames = {
             nickname:$(evt.currentTarget).find('input[name="nickname"]').val(),
             content:$(evt.currentTarget).find('textarea[name="content"]').val(),
@@ -13,53 +18,62 @@
             method: 'POST',
             success: function(response){
                 console.log(response.id)
-                if(parames.parent==0){
-                    $('.Y-container').prepend(prependMain(parames.nickname, response.createdAt, response.id, parames.content))
+                if(parames.parent==0){                    
+                    $('.createComment').next().after(prependMain(parames.nickname, response.createdAt, response.id, parames.content))
                 } else {
-                    console.log($(evt.currentTarget).parent().prev().prepend(prependSub(parames.nickname, response.createdAt, response.id, parames.content)))
+                    console.log($(evt.currentTarget).closest('.createSubComment').prev())
+                    $(evt.currentTarget).closest('.createSubComment').prev().prepend(prependSub(parames.nickname, response.createdAt, response.id, parames.content))      
                 }
             }
         })
-        $(evt.delegateTarget).find('textarea[name="content"]').val("")
-        
+        $(evt.currentTarget).find('textarea[name="content"]').val("在想什麼？")
+
     })
     //刪除留言
-    $(".Y-container").on("submit", ".deleteForm", function(evt){
+    $(".Y-container").on("click", ".deleteMain", function(evt){
         evt.preventDefault()
         var parames = {
-            deleteId:$(evt.currentTarget).find('input[name="deleteId"]').val(),
+            deleteId:$(evt.currentTarget).val(),
         }
-        $.ajax({
+        console.log(parames.deleteId);
+            if(confirm("確定要刪除嗎？")){
+            $.ajax({
             data: parames,
             url: '/deleteComment',
             method: 'POST',
             success: function(){
                 console.log('delete successfully')
             }
-        })
-        console.log(evt)
-        console.log($(evt.currentTarget).parent()[0])
-        console.log($(evt.currentTarget).parent()[0].className)
-        if($(evt.currentTarget).parent()[0].className=='comment__main__function row'){
-            $(evt.currentTarget).closest('.comment').css("display","none");
-        } else {
-            $(evt.currentTarget).closest('.comment__sub').css("display","none");
+            })
+            console.log($(evt.currentTarget).closest('.comments'));
+            
+            $(evt.currentTarget).closest('.comments').hide();
         }
     })
 
-    //顯示編輯框
-    $(".Y-container").on("click", ".btn--edit", function(evt){
-        console.log('hihih')
-        if($(evt.currentTarget).parent()[0].className=='comment__main__function row'){
-            $(evt.currentTarget).closest('.comment__main').find('.comment__main__content').toggle();
-            $(evt.currentTarget).closest('.comment__main').find('.comment__main__updateForm').toggle();
-        } else {
-            $(evt.currentTarget).closest('.comment__sub').find('.comment__sub__content').toggle();
-            $(evt.currentTarget).closest('.comment__sub').find('.comment__sub__updateForm').toggle();            
+    //刪除留言
+    $(".Y-container").on("click", ".deleteSub", function(evt){
+        evt.preventDefault()
+        var parames = {
+            deleteId:$(evt.currentTarget).val(),
+        }
+        console.log(parames.deleteId);
+        if(confirm("確定要刪除嗎？")){
+            $.ajax({
+            data: parames,
+            url: '/deleteComment',
+            method: 'POST',
+            success: function(){
+                console.log('delete successfully')
+            }
+            })
+            console.log($(evt.currentTarget).closest('.comment__sub'));
+            
+            $(evt.currentTarget).closest('.comment__sub').hide();
         }
     })
 
-
+    //編輯留言
     $(".Y-container").on("submit", ".updateForm", function(evt){
         evt.preventDefault()
         let params = {
@@ -74,80 +88,150 @@
                 console.log('update successfully')
             }
         })
-        console.log('hihih1')
-        if($(evt.currentTarget).parent().parent()[0].className=='comment__main container'){
-            console.log('hihih2')
-            $(evt.currentTarget).closest('.comment__main').find('.comment__main__content').css("display","block");
-            $(evt.currentTarget).closest('.comment__main').find('.comment__main__updateForm').css("display","none");
-            $(evt.currentTarget).closest('.comment__main').find('.comment__main__content').html(params.updateComment);
-           
-        } else {
-            $(evt.currentTarget).closest('.comment__sub').find('.comment__sub__content').css("display","block");
-            $(evt.currentTarget).closest('.comment__sub').find('.comment__sub__updateForm').css("display","none");            
+        console.log($(evt.currentTarget).parent().className)
+
+        if($(evt.currentTarget).parent().hasClass('comment__main__updateForm')){
+            params.updateComment = escapeOutput(params.updateComment)
+            $(evt.currentTarget).closest('.comment__main').find('.comment__main__content').html(`<div class='rol'>${params.updateComment}</div>`);
+        } else {    
+            params.updateComment = escapeOutput(params.updateComment)                   
             $(evt.currentTarget).closest('.comment__sub').find('.comment__sub__content').html(params.updateComment);
         }
-
     })
 
     function prependMain(u_nickname, u_createdAt, u_id, u_content){
-        return `<div class='comment shadow-sm p-3 mb-3 bg-white rounded' >
-                <div class='comment__main container'>
-                <div class='comment__main__info row'>
-                    <div class='comment__main__nickname'>${u_nickname}</div>
-                    <div class='comment__main__createdAt'>${u_createdAt}</div>
-                    <div class='comment__main__function row'>
-                        <form class='deleteForm'>
-                            <input class="form-control" type='text' name='deleteId' value="${u_id}" hidden>
-                            <input class="main__function--delete" type='submit' name="delete" value='刪除'>
-                        </form>
-                        <button class="btn--edit main__function--edit" type="button" class="button">編輯</button>
+        u_content = escapeOutput(u_content)
+        u_nickname = escapeOutput(u_nickname)
+        return `<div class='comments d-flex flex-column w-60 center shadow-sm mb-2 bg-white'>
+                    <div class='comment__main container bg-white p-3 bd'>
+                        <div class='comment__main__info row justify-content-start align-items-center mb-3'>
+                            <div class='col-1'><div class="head"></div></div>
+                            <div class='col d-flex flex-column'>
+                                <div class='comment__main__nickname'>${u_nickname}</div>
+                                <div class='comment__main__createdAt'>${u_createdAt}</div>
+                            </div>
+                            
+                            <div class="dropdown">
+                                <button class="btn btn-outline-light dropdown-toggle btn-sm mr-2" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    ...
+                                </button>
+                                
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                    <button class="btn--delete dropdown-item" type="button" value="${u_id}" class="button">刪除</button>
+                                    <button class="btn--edit dropdown-item" type="button" class="button" data-toggle="modal" data-target="#edit${u_id}">編輯</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="edit${u_id}" tabindex="-1" role="dialog" aria-labelledby="edit${u_id}Title" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="edit${u_id}Title">${u_nickname}</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body comment__main__updateForm form-group p-3 bg-white">
+                                <form class='updateForm' id="updateForm${u_id}">
+                                    <input type='text' name='updateId' value="${u_id}" hidden>
+                                    <textarea class="form-control" name="updateComment">${u_content}</textarea>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" form="updateForm${u_id}" class="btn btn--tulip">更新</button>
+                            </div>
+                            </div>
+                        </div>
+                        </div>
+
+                        <div class='comment__main__content row'>
+                            <div class="col">${u_content}</div>
+                        </div>
                     </div>
-                </div>
-                <div class='comment__main__content row'>${u_content}</div>
-                <div class='comment__main__updateForm form-group p-3 bg-white rounded'>
-                    <form class='updateForm'>
-                        <input type='text' name='updateId' value="${u_id}" hidden>
-                        <textarea class="form-control" name="updateComment">${u_content}</textarea>
-                        <input type='submit' name="delete" value='更新'>
-                    </form>
-                </div>
-                </div>
-                <div class='comment__subs'>
-                </div>
-                <div class='Comment__form form-group'>
-                    <form class='createCommentForm'>
-                        <input type='text' name='nickname' value='<%=user%>' hidden>
-                        <input type='text' name='parent' value="${u_id}" hidden>
-                        <textarea class="form-control" name="content" placeholder="回應："></textarea>
-                        <input type='submit' name='submit' value='送出'>
-                    </form>
-                </div>
+                    <div class='comment__subs container p-3 bg-white'>
+                    </div>
+                    <div class='createSubComment container p-3 bg-test'>
+                        <div class='comment__sub row justify-content-start mb-1 '>
+                            <div class='col-1'>
+                                <div class="head"></div>
+                            </div>
+                            <form class='bg-test createCommentForm'>
+                                <div class='form-row align-items-start'>
+                                    <input type='text' name='nickname' value='${u_nickname}' hidden>
+                                    <input type='text' name='parent' value="${u_id}" hidden>
+
+                                    <div class="col my-1">
+                                        <textarea class="form-control" name="content" placeholder="回應："></textarea>
+                                    </div>
+                                    <div class="col-auto my-1 align-self-end">
+                                        <button class="btn btn--tulip" type="submit">送出</button>
+                                    </div>
+                                </div>
+                            </form>    
+                        </div>
+                    </div>
                 </div>`
     }
     function prependSub(u_nickname, u_createdAt, u_id, u_content){
+        u_content = escapeOutput(u_content)
+        u_nickname = escapeOutput(u_nickname)
         return `
-            <div class='comment__sub container'>
-                <div class='comment__sub__info row'>
-                    <div>${u_nickname}</div>
-                        <div class='comment__sub__function row'>
-                            <form class='deleteForm'>
-                                <input type='text' name='deleteId' value="${u_id}" hidden>
-                                <input class="sub__function--delete" type='submit' name="delete" value='刪除'>
-                            </form>
-                            <button class="btn--edit sub__function--edit" type="button" class="btn btn-primary">編輯</button>
+        <div class='comment__sub row justify-content-start mb-1'>
+            <div class='col-1'>
+                <div class="head"></div>
+            </div>
+
+            <div class='comment__sub__info col d-flex flex-column '>                              
+                <div>
+                    <div class='comment__sub__content bg-test p-2 round-25'>
+                        <span class='sub__info--name'>${u_nickname}</span>&nbsp;
+                        ${u_content}
+                        <div class="dropdown" style="display: inline-block">
+                            <button class="btn btn-light dropdown-toggle btn-sm mr-2" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                ...
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                <button class="btn--delete dropdown-item" type="button" value="${u_id}" class="button">刪除</button>
+                                <button class="btn--edit dropdown-item" type="button" class="button" data-toggle="modal" data-target="#edit${u_id}">編輯</button>
+                            </div>
                         </div>
+                    </div>
                 </div>
 
-                <div class='comment__sub__content row'>${u_content}</div>
-
-                <div class='comment__sub__updateForm form-group p-3 bg-white roundeds'>
-                    <form class='updateForm'>
-                        <input type='text' name='updateId' value="${u_id}" hidden>
-                        <textarea class="form-control" name="updateComment">${u_content}</textarea>
-                        <input type='submit' name="delete" value='更新'>
-                    </form>
+                <!-- Modal -->
+                <div class="modal fade" id="edit${u_id}" tabindex="-1" role="dialog" aria-labelledby="edit${u_id}Title" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="edit${u_id}Title">${u_nickname}</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body comment__sub__updateForm form-group p-3 bg-white">
+                            <form class='updateForm' id="updateForm${u_id}">
+                                <input type='text' name='updateId' value="${u_id}" hidden>
+                                <textarea class="form-control" name="updateComment">${u_content}</textarea>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" form="updateForm${u_id}" class="btn btn--tulip">更新</button>
+                        </div>
+                        </div>
+                    </div>
                 </div>
-            </div>`
-
+            </div>
+        </div>
+        `
+    }
+    function escapeOutput(toOutput){
+    return toOutput.replace(/\&/g, '&amp;')
+        .replace(/\</g, '&lt;')
+        .replace(/\>/g, '&gt;')
+        .replace(/\"/g, '&quot;')
+        .replace(/\'/g, '&#x27')
+        .replace(/\//g, '&#x2F');
     }
 </script>

@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express()
-const port = 3000
+const port = 3001
 const bodyParser = require('body-parser')
 const loginController = require('./controllers/loginController')
 const registerController = require('./controllers/registerController')
@@ -46,9 +46,14 @@ app.get('/', loginController.loginPage)
 app.post('/login', loginController.loginHandler)
 app.get('/register', registerController.registerPage)
 app.post('/register', registerController.registerHandler)
+app.get('/comments/:page',(req, res)=>{
+    db.getComments(req, res).then((dbresult)=>{
+        res.render('main',{user: req.session.nickname||'', result: dbresult, page:req.params.page})
+    })
+})
 app.get('/comments',(req, res)=>{
     db.getComments(req, res).then((dbresult)=>{
-        res.render('main',{user: req.session.nickname||'', result: dbresult})
+        res.render('main',{user: req.session.nickname||'', result: dbresult, page:'1'})
     })
 })
 app.post('/createComment', commentsController.createComments)

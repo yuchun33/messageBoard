@@ -1,26 +1,56 @@
-$lightGreen: rgba(170,246,131,0.7)
-$darkGreen: #5da271
+$bg_yellow: #F4CB6B
+$btn_tulip: #FF8484
+$tulip: #FF8484
+$btn_melon: #FFAAAA
+$ct_platinum: #E5E5E5
+$cool_black: #0E2963
+$AZUREISH_WHITE: #CFE8EF
+
+*
+    padding: 0
+    box-sizing: border-box
+    font-size: 20px
+.bg-nav
+    width: 100vw
+    background: #E5E5E5
+    border-bottom: 1px solid #E5E5E5
+    z-index: 5
+    .nav-item
+        a
+            color: $tulip
+            font-size: 34px
+        a:hover 
+            font-weight: 700
+.body 
+    margin: 0
+    padding: 100px
+    width: 100vw
+    height: 100vh
+    background: $bg_yellow
 .container
-    width: 600px
-    height: 400px
-    margin: 20px auto
-    *
-        font-size: 20px
-    h1
-        text-align: center
-        font-size: 46px
-        font-weight: 700
-        color: $darkGreen
-    form
-        width: 90%
-        margin: 0 auto
-        .btn--green
-            width: 100%
-            border: 0
-            background: $lightGreen
-        .btn--white
-            width: 100%
-            margin: 5px auto
-            border: 1px solid $lightGreen
-            background: white
+    background: $ct_platinum
+    .title
+        color: $tulip
+
+    
+.h-70
+    height: 70vh
+.w-40
+    width: 40vw
+form
+    width: 90%
+    margin: 0 auto
+    .btn
+        background: $btn_tulip
+        color: white
+        &:hover
+            background: $btn_melon
+    .btn-border
+        background: white
+        border: 2px solid $btn_tulip
+        color: $btn_tulip
+        &:hover
+            background: $btn_melon
+            color: white
+
             
